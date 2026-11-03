@@ -19,7 +19,7 @@ Before you report, please check:
 <One sentence: what went wrong?>
 
 ### Version & system
-- Game version:            (e.g. v0.1.0 - bottom-right of the main menu)
+- Game version:            (e.g. v0.2.0 - bottom-right of the main menu)
 - Package:                 (.deb / Windows .exe / run from source)
 - Operating system:        (e.g. Ubuntu 24.04, Debian 12, Windows 11)
 - Screen mode:             (window / fullscreen F11)

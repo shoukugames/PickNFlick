@@ -32,9 +32,9 @@ NOSE_CX, NOSE_CY = 1200, 238
 
 # Belt behaviour: base speed (px/s), direction (+1 = left-to-right), mode, spacing
 BELTS = [
-    {"speed": 240.0, "dir": 1, "mode": "loop", "spacing": 168},
-    {"speed": 150.0, "dir": -1, "mode": "loop", "spacing": 186},
-    {"speed": 82.0, "dir": 1, "mode": "pingpong", "spacing": 200},
+    {"speed": 240.0, "dir": 1, "mode": "loop", "spacing": 168, "points": 50},
+    {"speed": 150.0, "dir": -1, "mode": "loop", "spacing": 186, "points": 30},
+    {"speed": 82.0, "dir": 1, "mode": "pingpong", "spacing": 200, "points": 20},
 ]
 BELT_COLORS = [(255, 183, 3), (110, 210, 240), (255, 143, 171)]
 

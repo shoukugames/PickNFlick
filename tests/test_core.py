@@ -96,6 +96,11 @@ class BeltTests(unittest.TestCase):
 
 
 
+class ScoringTests(unittest.TestCase):
+    def test_belt_points_top_middle_bottom(self):
+        self.assertEqual([b["points"] for b in C.BELTS], [50, 30, 20])
+
+
 class MusicTests(unittest.TestCase):
     def test_every_track_renders_without_clipping(self):
         import array

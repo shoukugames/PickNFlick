@@ -397,7 +397,7 @@ class GameScene(Scene):
         elif target.char == self.needed:
             self.spelled += 1
             self.stats["correct"] += 1
-            pts = int(10 * self.level * self.dp["mult"])
+            pts = int(C.BELTS[b.belt]["points"] * self.level * self.dp["mult"])
             self.score += pts
             self.popups.add("+%d" % pts, target.x, belt.y - 40, C.YELLOW, 30)
             self.app.audio.play("correct")

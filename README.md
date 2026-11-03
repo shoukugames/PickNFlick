@@ -3,7 +3,7 @@
 A carnival shooting-gallery **spelling game** for kids. Pick the nose, flick boogers at letters
 riding three conveyor belts, and spell the word shown under the gallery window.
 
-**Version: v0.1.0** · Created by **Shawn Rapaz and Claude Code** · Website: <https://shoukugames.org/> · Email: info@shoukugames.org
+**Version: v0.2.0** · Created by **Shawn Rapaz and Claude Code** · Website: <https://shoukugames.org/> · Email: info@shoukugames.org
 
 ![icon](assets/icon.png)
 
@@ -52,7 +52,7 @@ riding three conveyor belts, and spell the word shown under the gallery window.
 
 | Event | Points |
 |-------|--------|
-| Correct letter | 10 × level × difficulty multiplier |
+| Correct letter | belt points × level × difficulty multiplier (top belt 50, middle 30, bottom 20) |
 | Word complete | 50 × level × multiplier |
 | Level clear time bonus | seconds left × 2 × level × multiplier |
 | Wrong letter | Easy: no penalty · Medium: −5 × level · Hard: −10 × level |
@@ -63,13 +63,13 @@ Difficulty multiplier: Easy ×1, Medium ×1.5, Hard ×2.
 
 ### Linux (Debian / Ubuntu)
 ```bash
-sudo apt install ./picknflick_v0.1.0_amd64.deb
+sudo apt install ./picknflick_v0.2.0_amd64.deb
 picknflick            # or launch "Pick 'n' Flick" from your applications menu
 ```
 Uninstall with `sudo apt remove picknflick`.
 
 ### Windows
-Run `PickNFlick-v0.1.0-windows.exe`. It is a single portable file, so there is nothing to install.
+Run `PickNFlick-v0.2.0-windows.exe`. It is a single portable file, so there is nothing to install.
 Windows SmartScreen may warn because the file is unsigned. Click **More info → Run anyway**.
 
 ### Run from source (any OS)
