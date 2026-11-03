@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Pick 'n' Flick
+Name[ja]=ピック・アンド・フリック
+GenericName=Spelling Game
+Comment=Flick boogers at letters to spell words in a carnival shooting gallery
+Comment[ja]=はなくそを とばして スペルを つくる シューティングゲーム
+Exec=picknflick
+Icon=picknflick
+Terminal=false
+Categories=Game;Education;KidsGame;
+Keywords=spelling;kids;english;japanese;shooting;gallery;

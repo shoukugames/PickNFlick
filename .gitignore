@@ -1,0 +1,35 @@
+# Build output - never commit
+builds/
+build/
+dist/
+*.spec
+
+# Binaries / packages
+*.deb
+*.dpkg
+*.exe
+*.msi
+*.apk
+*.aab
+*.AppImage
+*.rpm
+*.dmg
+*.app/
+*.so
+*.dll
+*.pyd
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local save data / editors / OS
+save.json
+*.tmp
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
