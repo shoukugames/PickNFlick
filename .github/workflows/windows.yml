@@ -36,10 +36,12 @@ jobs:
           python -m pip install -r requirements-build.txt
       - name: Build
         run: |
+          ROOT="$(cygpath -m "$PWD")"
           VERSION="$(python -c 'import pnf; print(pnf.__version__)')"
+          mkdir -p builds/windows
           python tools/make_version_info.py builds/windows/version_info.txt
           python -m PyInstaller --noconfirm --clean --onefile --windowed --name PickNFlick \
-            --icon assets/icon.ico --version-file builds/windows/version_info.txt --add-data "assets;assets" \
+            --icon "$ROOT/assets/icon.ico" --version-file "$ROOT/builds/windows/version_info.txt" --add-data "$ROOT/assets;assets" \
             --distpath builds/windows/dist --workpath builds/windows/work --specpath builds/windows main.py
           cp builds/windows/dist/PickNFlick.exe "builds/PickNFlick-v$VERSION-windows.exe"
       - name: Show what was built
