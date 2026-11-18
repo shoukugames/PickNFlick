@@ -59,6 +59,25 @@ riding three conveyor belts, and spell the word shown under the gallery window.
 
 Difficulty multiplier: Easy ×1, Medium ×1.5, Hard ×2.
 
+## Play in the browser
+
+Pick 'n' Flick also runs in a web browser, with nothing to install:
+<https://shoukugames.org/play/pick-n-flick/> (test page). With a keyboard it plays as usual. On
+phones and tablets, tap menu items to choose them, and in the game use the on-screen buttons:
+◀ ▶ aim, ▲ ▼ choose a belt, hold PICK / FLICK to pick and tap it to flick, II pauses. A key bar
+beside the game (with a ⌨ button for typing your name) covers the other screens. Settings,
+scores and progress are saved in the browser.
+
+```bash
+python3 -m pip install pygame pygbag     # plus ffmpeg on PATH (or FFMPEG=/path/to/ffmpeg)
+python3 tools/build_web.py               # -> build/web/: upload the folder as-is
+```
+
+The build composes the music tracks once into `web_music/` (too slow to do in a browser), then
+packs the game with [pygbag](https://pygame-web.github.io/). `main.py` starts the desktop game,
+or the browser version when run by pygbag; `pnf/touchpad.py` and `pnf/webkeys.py` are the touch
+controls. The `.apk` file pygbag writes is its bundle of game files, not an Android app.
+
 ## Installing
 
 ### Linux (Debian / Ubuntu)

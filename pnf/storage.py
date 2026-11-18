@@ -4,7 +4,10 @@ import json
 import os
 import time
 
+from . import WEB
 from .resources import data_dir
+
+_WEB_KEY = "picknflick/save.json"  # browser: localStorage key (files vanish with the page)
 
 MAX_SESSIONS = 30
 MAX_SCORES = 10
@@ -50,12 +53,24 @@ class Store:
     # -- io -------------------------------------------------------------
     def load(self):
         try:
+            if WEB:
+                import platform  # pygbag's bridge to the page
+                raw = platform.window.localStorage.getItem(_WEB_KEY)
+                self.data = _merge(DEFAULT, json.loads(str(raw))) if raw else copy.deepcopy(DEFAULT)
+                return
             with open(self.path, "r", encoding="utf-8") as f:
                 self.data = _merge(DEFAULT, json.load(f))
-        except (OSError, ValueError):
+        except Exception:  # noqa: BLE001 - a damaged save starts fresh
             self.data = copy.deepcopy(DEFAULT)
 
     def save(self):
+        if WEB:
+            try:
+                import platform  # pygbag's bridge to the page
+                platform.window.localStorage.setItem(_WEB_KEY, json.dumps(self.data, ensure_ascii=False))
+            except Exception:  # noqa: BLE001
+                pass
+            return
         tmp = self.path + ".tmp"
         try:
             with open(tmp, "w", encoding="utf-8") as f:

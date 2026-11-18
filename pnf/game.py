@@ -73,6 +73,8 @@ class GameScene(Scene):
     def __init__(self, app, start_level=1):
         gfx.warm_finger()
         super().__init__(app)
+        from .touchpad import TouchPad
+        self.pad = TouchPad()       # on-screen buttons on touch screens
         self.diff = app.store.settings["difficulty"]
         self.dp = C.DIFF[self.diff]
         self.start_level = start_level
@@ -180,6 +182,9 @@ class GameScene(Scene):
 
     # ------------------------------------------------------------------ input
     def handle(self, e):
+        if getattr(self.app, "touch", False) and e.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
+            self.handle_touch(e)
+            return
         if e.type == pygame.KEYUP and e.key == pygame.K_SPACE:
             self.space_down = False
             return
@@ -211,7 +216,7 @@ class GameScene(Scene):
                     if self.ammo > 0 and self.pick_t == 0:
                         self.flick()
                     elif self.ammo == 0:
-                        self.popups.add(self.t_("pick_hint"), C.NOSE_CX - 140, C.NOSE_CY + 140, C.YELLOW, 22, 0.8)
+                        self.popups.add(self.t_(self._pick_hint()), C.NOSE_CX - 140, C.NOSE_CY + 140, C.YELLOW, 22, 0.8)
         elif st == "paused":
             if k in (pygame.K_UP, pygame.K_DOWN):
                 self.pause_sel = 1 - self.pause_sel
@@ -247,6 +252,29 @@ class GameScene(Scene):
         elif st == "final":
             if k in (pygame.K_RETURN, pygame.K_KP_ENTER) and self.state_t > 0.6:
                 self.go_after_game()
+
+    def handle_touch(self, e):
+        """Touch screens: the on-screen buttons act like the keys they replace (see touchpad.py)."""
+        if e.button != 1:
+            return
+        key = lambda k: pygame.event.Event(pygame.KEYDOWN, key=k, mod=0, unicode="")
+        if e.type == pygame.MOUSEBUTTONDOWN:
+            name = self.pad.hit(e.pos)
+            if name is None:
+                return
+            self.pad.held[1] = name
+            if name == "up":
+                self.handle(key(pygame.K_UP))
+            elif name == "down":
+                self.handle(key(pygame.K_DOWN))
+            elif name == "pause":
+                self.handle(key(pygame.K_ESCAPE))
+            elif name == "flick":
+                self.handle(key(pygame.K_SPACE))
+        else:
+            name = self.pad.held.pop(1, None)
+            if name == "flick":
+                self.handle(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE, mod=0))
 
     def flick(self):
         if self.launch_pending:      # quick double tap: fire the previous one right now
@@ -331,7 +359,9 @@ class GameScene(Scene):
     def update_hand(self, dt):
         keys = pygame.key.get_pressed()
         if self.state in ("play", "intro", "word_clear"):
-            move = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * C.AIM_SPEED * dt
+            right = keys[pygame.K_RIGHT] or self.pad.holding("right")
+            left = keys[pygame.K_LEFT] or self.pad.holding("left")
+            move = (right - left) * C.AIM_SPEED * dt
             self.aim_x = max(C.AIM_MIN, min(C.AIM_MAX, self.aim_x + move))
 
         picking = (self.state == "play" and self.ammo == 0 and self.space_down and not self.need_press)
@@ -526,9 +556,14 @@ class GameScene(Scene):
             gfx.draw_flick_trail(surf, pts, fade)
         self.draw_nose_layer(surf)
         self.draw_hud(surf)
+        if getattr(self.app, "touch", False):
+            self.pad.draw(surf, self.t_("touch_flick"))
         self.particles.draw(surf)
         self.popups.draw(surf)
         self.draw_overlay(surf)
+
+    def _pick_hint(self):
+        return "pick_hint_touch" if getattr(self.app, "touch", False) else "pick_hint"
 
     def draw_gallery(self, surf):
         x0, x1, top, bot = C.GAL_X0, C.GAL_X1, C.GAL_TOP, C.GAL_BOTTOM
@@ -617,7 +652,7 @@ class GameScene(Scene):
             else:
                 pygame.draw.circle(surf, (110, 90, 130), (x, y), 11, 2)
         if self.ammo == 0 and self.pick_t == 0 and self.state == "play" and int(self.t * 2.5) % 2 == 0:
-            hint = self.t_("pick_hint")
+            hint = self.t_(self._pick_hint())
             gfx.text(surf, hint, gfx.fit_size(hint, 18, 250), C.YELLOW, (C.NOSE_CX - 30, py + ph + 18),
                      outline=2, ocolor=C.INK)
             gfx.draw_arrow(surf, C.NOSE_CX, C.NOSE_CY + 100, "up", 10)

@@ -23,6 +23,8 @@ import warnings
 
 import pygame
 
+from . import WEB
+
 try:  # fast C mixing (Python <= 3.12); a slow pure-Python shim is used otherwise
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -573,6 +575,18 @@ class Music:
     def prepare(self, name, background=False):
         if not self.ok or name not in TRACKS:
             return None
+        if WEB:
+            # Composing a track takes over a second even on a PC and browsers run no Python threads,
+            # so the web build ships the tracks pre-made (tools/build_web.py writes web_music/*.ogg).
+            snd = self.cache.get(name)
+            if snd is None:
+                from .resources import resource_path
+                try:
+                    snd = pygame.mixer.Sound(resource_path("web_music", name + ".ogg"))
+                except (pygame.error, FileNotFoundError):
+                    return None
+                self.cache[name] = snd
+            return snd
         with self.lock:
             self.composer.pause_fn = (lambda: time.sleep(0.004)) if background else None
             snd = self.cache.get(name)
@@ -585,7 +599,7 @@ class Music:
 
     def prefetch(self, names):
         """Compose tracks in a background thread so level changes never stall."""
-        if not self.ok or (self._worker and self._worker.is_alive()):
+        if WEB or not self.ok or (self._worker and self._worker.is_alive()):
             return
         todo = [n for n in names if n not in self.cache]
 

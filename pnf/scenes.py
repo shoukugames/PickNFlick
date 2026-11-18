@@ -5,7 +5,7 @@ import string
 
 import pygame
 
-from . import __version__
+from . import WEB, __version__
 from . import config as C
 from . import gfx
 from .base import Scene
@@ -19,7 +19,12 @@ def is_enter(e):
     return e.type == pygame.KEYDOWN and e.key in ENTER_KEYS
 
 
+TOUCH = False   # set by App on touch screens: a tap on an info screen goes back
+
+
 def is_back(e):
+    if TOUCH and e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+        return True
     return e.type == pygame.KEYDOWN and e.key in (pygame.K_ESCAPE, pygame.K_BACKSPACE) + ENTER_KEYS
 
 
@@ -85,7 +90,9 @@ class MenuScene(Scene):
 
     def __init__(self, app, sel=0):
         super().__init__(app)
-        self.sel = sel
+        if WEB:  # a web page has nothing to quit to
+            self.ITEMS = [i for i in MenuScene.ITEMS if i != "quit"]
+        self.sel = min(sel, len(self.ITEMS) - 1)
         self.decor = DecorBelts()
         self.locked_flash = 0.0
 
@@ -124,6 +131,14 @@ class MenuScene(Scene):
         self.app.audio.play("move")
 
     def handle(self, e):
+        if getattr(self.app, "touch", False) and e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+            # Touch screens: tap a menu item to choose it (settings change on each tap).
+            y0, step, w = 166, 34, 600
+            i = round((e.pos[1] - y0) / step)
+            if 0 <= i < len(self.ITEMS) and abs(e.pos[0] - C.W // 2) <= w // 2:
+                self.sel = i
+                self.activate(self.ITEMS[i])
+            return
         if e.type != pygame.KEYDOWN:
             return
         item = self.ITEMS[self.sel]

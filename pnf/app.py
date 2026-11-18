@@ -6,6 +6,7 @@ os.environ.setdefault("SDL_RENDER_SCALE_QUALITY", "1")   # smooth (linear) scali
 
 import pygame  # noqa: E402
 
+from . import WEB
 from . import config as C
 from . import gfx
 from .audio import Audio
@@ -23,7 +24,8 @@ class App:
             pygame.display.set_icon(gfx.make_icon(64))
         except pygame.error:
             pass
-        self.screen = pygame.display.set_mode((C.W, C.H), pygame.SCALED | pygame.RESIZABLE)
+        # In a browser: a fixed-size canvas, which the page scales to fit.
+        self.screen = pygame.display.set_mode((C.W, C.H), 0 if WEB else pygame.SCALED | pygame.RESIZABLE)
         self.canvas = pygame.Surface((C.W, C.H))
         self.clock = pygame.time.Clock()
         self.store = Store(store_path)
@@ -31,6 +33,17 @@ class App:
         self.music = Music(self.audio, self.store.settings.get("music", True))
         self.running = True
         self._shake = 0.0
+        # Phones and tablets: on-screen game buttons (touchpad.py) plus a key bar for the menus (webkeys.py).
+        self.touch = False
+        self.webkeys = None
+        if WEB:
+            from .webkeys import WebKeys, has_touch_screen
+            self.touch = has_touch_screen()
+            if self.touch:
+                try:
+                    self.webkeys = WebKeys(keys=["Escape", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"])
+                except Exception:  # noqa: BLE001 - the game still works with a keyboard
+                    self.webkeys = None
         pygame.key.stop_text_input()
         from .scenes import MenuScene
         self.scene = MenuScene(self)
@@ -66,10 +79,16 @@ class App:
     def step(self, dt, events):
         from .scenes import NameEntryScene
         for e in events:
+            if e.type == pygame.FINGERDOWN:
+                self.touch = True
+            if self.touch:
+                from . import scenes
+                scenes.TOUCH = True
             if e.type == pygame.QUIT:
-                self.running = False
+                self.running = WEB  # in a browser there is nothing to quit to
             elif e.type == pygame.KEYDOWN and e.key == pygame.K_F11:
-                pygame.display.toggle_fullscreen()
+                if not WEB:
+                    pygame.display.toggle_fullscreen()
             elif (e.type == pygame.KEYDOWN and e.key == pygame.K_m
                   and not isinstance(self.scene, NameEntryScene)):
                 self.toggle_sound()
@@ -89,9 +108,22 @@ class App:
         self.screen.blit(self.canvas, (ox, oy))
         pygame.display.flip()
 
+    def frame(self):
+        dt = min(self.clock.tick(C.FPS) / 1000.0, 0.05)
+        if self.webkeys:
+            self.webkeys.poll()
+        self.step(dt, pygame.event.get())
+
     def run(self):
         while self.running:
-            dt = min(self.clock.tick(C.FPS) / 1000.0, 0.05)
-            self.step(dt, pygame.event.get())
+            self.frame()
         self.store.save()
         pygame.quit()
+
+    async def run_web(self):
+        """Browser main loop: hands control back to the page after every frame."""
+        import asyncio
+        while True:  # a web page has no "quit"; closing the tab ends the game
+            self.running = True
+            self.frame()
+            await asyncio.sleep(0)
