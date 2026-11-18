@@ -57,3 +57,10 @@ if __name__ == "__main__":
     if not os.path.exists(os.path.join(ROOT, "build", "web", "index.html")):
         sys.exit("pygbag did not write build/web/index.html")
     print("build/web ready: upload the folder as-is")
+
+# pygbag sometimes sizes the canvas before the game has opened its window, squeezing the game
+# into a square: add a small script that keeps it the game's shape (tools/web_canvas_fix.py).
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import web_canvas_fix  # noqa: E402
+
+web_canvas_fix.apply(os.path.join(ROOT, "build", "web", "index.html"))
