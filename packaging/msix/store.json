@@ -1,0 +1,12 @@
+{
+ "_note": "Replace identity_name, publisher and publisher_display_name with the values from Partner Center (Product management -> Product identity) before uploading to the Microsoft Store.",
+ "identity_name": "ShoukuGames.PicknFlick",
+ "publisher": "CN=ShoukuGamesPlaceholder",
+ "publisher_display_name": "Shouku Games",
+ "display_name": "Pick ’n’ Flick",
+ "description": "A carnival shooting-gallery spelling game. Pick your nose and flick boogers at letters on moving belts to spell the word.",
+ "file_name": "PicknFlick",
+ "exe_name": "PicknFlick.exe",
+ "alias": "shouku-pick-n-flick.exe",
+ "device_capabilities": []
+}
